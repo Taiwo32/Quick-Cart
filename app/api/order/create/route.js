@@ -1,3 +1,4 @@
+import { products } from "@/assets/productData";
 import { inngest } from "@/config/inngest";
 import Product from "@/models/Product";
 import User from "@/models/User";
@@ -17,9 +18,9 @@ export async function POST(request) {
         }
 
         //calculate amount using items
-        const amount = items.reduce(async (acc, item) => {
-            const product = await Product.findById(item.productId);
-            return acc + product.price * item.quantity;
+        const amount = await items.reduce(async (acc, item) => {
+            const product = await Product.findById(item.product);
+            return await acc + product.offerPrice * item.quantity;
         }, 0)
 
         await inngest.send({
@@ -38,6 +39,8 @@ export async function POST(request) {
         const user = await User.findById(userId);
         user.cartItems = {};
         await user.save();
+        
+        
 
         return NextResponse.json({ success: true, message: "Order placed successfully" })
     } catch (error) {
